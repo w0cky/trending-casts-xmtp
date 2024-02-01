@@ -45,9 +45,12 @@ function formatTrendingNotification(cast: Cast): string {
 
 // Initialize the bot
 run(async (context) => {
+    const scheduledTime = process.env.CRON_TIME;
+    
+    if (!scheduledTime) {
+        throw new Error("CRON_TIME is undefined.")
+    }
 
-    // Schedule the task to run at 8pm
-    const scheduledTime = '0 20 * * *';
     const job = new cron.CronJob(scheduledTime, () => sendTrendingCasts(context), null, true);
 
     switch(context.message.content) {
