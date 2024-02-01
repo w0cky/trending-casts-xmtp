@@ -1,15 +1,17 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express, { Request, Response } from 'express';
-import cron from 'cron';
+import run from "./Runner";
+import createNeynarClient from "./Neynar";
 import { FeedType, FilterType } from "@neynar/nodejs-sdk";
 import { Cast } from "@neynar/nodejs-sdk/build/neynar-api/v2";
-import createNeynarClient from "./Neynar";
-import run, { BotContext } from "./Runner";
+import * as cron from 'cron';
+
+// Import types and functions
+type BotContext = { reply: (message: string) => Promise<void> };
 
 // Function to fetch and send trending casts
-async function sendTrendingCasts(context: BotContext): Promise<void> {
+async function sendTrendingCasts(context: BotContext) {
     try {
         const client = createNeynarClient();
         const feed = await client.fetchFeed(FeedType.Filter, {
@@ -41,28 +43,17 @@ function formatTrendingNotification(cast: Cast): string {
            `https://warpcast.com/${cast.author.username}/${cast.hash.substring(0, 10)} \n\n`;
 }
 
-const app = express();
-const port = process.env.PORT || 4000;
-
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!');
-});
-
-const server = app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
-
 // Initialize the bot
 run(async (context) => {
     const scheduledTime = process.env.CRON_TIME;
 
     if (!scheduledTime) {
-        throw new Error("CRON_TIME is undefined.");
+        throw new Error("CRON_TIME is undefined.")
     }
 
     const job = new cron.CronJob(scheduledTime, () => sendTrendingCasts(context), null, true);
 
-    switch (context.message.content) {
+    switch(context.message.content) {
         case '!start':
             job.start();
             break;

@@ -1,9 +1,7 @@
 import createClient from "./Client"
 import HandlerContext from "./HandlerContext"
 
-type Handler = (message: HandlerContext) => Promise<void>;
-
-export type BotContext = { reply: (message: string) => Promise<void> };
+type Handler = (message: HandlerContext) => Promise<void>
 
 export default async function run(handler: Handler) {
   const client = await createClient()
