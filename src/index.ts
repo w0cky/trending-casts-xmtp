@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { Request, Response } from 'express';
-import cron from 'cron';
+import { CronJob } from 'cron';
 import { FeedType, FilterType } from "@neynar/nodejs-sdk";
 import { Cast } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import createNeynarClient from "./Neynar";
@@ -55,13 +55,17 @@ const server = app.listen(port, () => {
 // Initialize the bot
 run(async (context) => {
     const scheduledTime = process.env.CRON_TIME;
-
+    console.log(process.env);
     if (!scheduledTime) {
         throw new Error("CRON_TIME is undefined.");
     }
 
-    const job = new cron.CronJob(scheduledTime, () => sendTrendingCasts(context), null, true);
-
+    let job = new CronJob(
+        scheduledTime, // cronTime
+        () => sendTrendingCasts(context), // onTick
+        null, // onComplete
+        true, // start
+    );
     switch (context.message.content) {
         case '!start':
             job.start();
