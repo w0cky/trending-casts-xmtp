@@ -19,7 +19,7 @@ async function sendTrendingCasts(context: BotContext) {
             limit: 3
         });
 
-        let message = "Trending Casts:\n\n";
+        let message = "Trending Casts:\n";
         for (const cast of feed.casts) {
             message += formatTrendingNotification(cast);
         }
@@ -39,14 +39,14 @@ function removeUrls(input: string): string {
 // Format a trending cast notification
 function formatTrendingNotification(cast: Cast): string {
     return `👤 ${cast.author.display_name} (@${cast.author.username})\n` +
-           `💬"${removeUrls(cast.text)}"\n` +
-           `🔗 warpcast.com/${cast.author.username}/${cast.hash.substring(0, 10)} \n\n`;
+           `"${removeUrls(cast.text)}"\n` +
+           `https://warpcast.com/${cast.author.username}/${cast.hash.substring(0, 10)} \n\n`;
 }
 
 // Initialize the bot
 run(async (context) => {
     const scheduledTime = process.env.CRON_TIME;
-    
+
     if (!scheduledTime) {
         throw new Error("CRON_TIME is undefined.")
     }
